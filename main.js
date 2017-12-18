@@ -2,8 +2,14 @@ const SHA256 = require('crypto-js/sha256');
 
 class Block {
     constructor(timestamp, data, previousHash = '', index = 0) {
+
+        //index is always determined by the blockchain.
+        //each block does not have access to such information
+        //so it has a default of 0
         this.index = index;
         this.timestamp = timestamp;
+
+        //stored object
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
@@ -15,15 +21,18 @@ class Block {
     }
 
     mine(difficulty) {
-        let hashAttempts = 0;
+
+        //date is used to make sure that the console continues to print
+        //letting you know how many hashes were calculated
         let date = new Date().getTime();
         while (this.hash.substr(0, difficulty) !== Array(difficulty + 1).join("0")) {
             let end = new Date().getTime();
-            if(date + 10000 == end){
-                console.log(`Calculated total of ${hashAttempts} hashes for block ${this.index + 1}`);
+            
+            //console log every 10000 ms
+            if (date + 10000 == end) {
+                console.log(`Calculated total of ${this.nonce} hashes for block ${this.index + 1}`);
                 date = new Date().getTime();
             }
-            hashAttempts++;
             this.nonce++;
             this.hash = this.calculateHash();
         }
@@ -36,6 +45,9 @@ class Blockchain {
         this.chain.push(this.generateGensisBlock());
     }
 
+    /**
+     * Generates the first block in the blockchain
+     */
     generateGensisBlock() {
         return new Block(0, Date.now(), {
             "Name": "Genesis Block",
@@ -75,10 +87,11 @@ class Blockchain {
 let chain = new Blockchain();
 
 while (true) {
-    let block = new Block(Date.now(), { "Name": "First Guy", "CurrentAccount": 10, "TransactionTo": 0, "Transaction": 0 });
+    let block = new Block(Date.now(), { "Name": "Entity", "CurrentAccount": 10, "TransactionTo": 0, "Transaction": 0 });
     let d1 = new Date().getTime();
     chain.addBlock(block);
     let d2 = new Date().getTime();
     console.log(`Added block ${chain.chain.length}. Hash computation time: ${d2 - d1} miliseconds`);
 }
-// console.log(JSON.stringify(chain, null, 4));
+
+console.log(JSON.stringify(chain, null, 4));
